@@ -26,7 +26,7 @@ def softmax_loss_naive(W, X, y, reg):
     N = X.shape[0]
     C = W.shape[1]
     D = W.shape[0]
-    s_loss_output = np.zero((N,C))
+    softmax = np.zeros((N,C))
     ############################################################################
     # TODO: Compute the softmax loss and its gradient using explicit loops.     #
     # Store the loss in loss and the gradient in dW. If you are not careful     #
@@ -35,24 +35,29 @@ def softmax_loss_naive(W, X, y, reg):
     #############################################################################
     
     ## softmax loss
-    for i in range N:
-        for j in range C:
-            for k in range D:
-                s_loss_output [i,j] += X[i,k]*W[k,j]    
-        s_loss_output[i,:] = np.exp(s_loss_output[i,:])
-        s_loss_output[i,:] /= np.sum(s_loss_output[i,:]) 
-    for i in range N:
-        loss -= np.log(s_loss_output[i,y[i]])
+    for i in range (N):
+        for j in range (C):
+            for k in range (D):
+                softmax[i,j] += X[i,k]*W[k,j] 
+        softmax[i] -= np.max(softmax[i]) # numerical stability
+        softmax[i,:] = np.exp(softmax[i,:])
+        softmax[i,:] /= np.sum(softmax[i,:]) 
+    for i in range (N):
+        loss -= np.log(softmax[i,y[i]])
     loss /= N
-    loss+= reg
+    loss+= 0.5*reg*np.sum(W*W)
     
     ## gradient of W
     
-    s_loss_output[arange(N),y] = -1 # s_loss_output[i,y[i]]  all Li and diff of sfm is -1.
-    for i in range D:
-        for j in range C:
-            for k in range N:
-                dw[i,j
+    softmax[np.arange(N),y] -=1 # softmax[i,y[i]]  all Li and diff of sfm is pi-1. (Li = -log(pi))
+    for i in range (N):
+        for j in range (D):
+            for k in range (C):
+                dW [j,k] = X[i,j]*softmax[i,k]
+                if k == y[i]:
+                    dW[j,k] -=1
+    dW /= N
+    dW += reg*W
         
     
     #############################################################################
@@ -78,7 +83,21 @@ def softmax_loss_vectorized(W, X, y, reg):
     # here, it is easy to run into numeric instability. Don't forget the        #
     # regularization!                                                           #
     #############################################################################
-    pass
+    N = X.shape[0]
+    scores = np.dot(X, W)
+    scores = scores - np.max(scores,axis=1,keepdims =True)
+    softmax = np.exp(scores)
+    
+    softmax -= np.sum(softmax, axis = 1, keepdims = True)
+    loss -= np.sum(np.log(softmax[np.arange(N),y]))
+    loss /= N
+    loss += 0.5 * reg *np.sum(W*W)
+    
+    softmax[np.arange(N),y] -= 1
+    dW = np.dot(X.T,softmax)
+    dW /= N
+    dW += reg*W
+    
     #############################################################################
     #                          END OF YOUR CODE                                 #
     #############################################################################
