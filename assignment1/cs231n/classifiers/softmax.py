@@ -34,18 +34,20 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     
-    ## softmax loss
+   
+     ## softmax loss
     for i in range (N):
         for j in range (C):
             for k in range (D):
                 softmax[i,j] += X[i,k]*W[k,j] 
         softmax[i] -= np.max(softmax[i]) # numerical stability
         softmax[i,:] = np.exp(softmax[i,:])
-        softmax[i,:] /= np.sum(softmax[i,:]) 
+        softmax[i,:] /= np.sum(softmax[i,:])
+        
     for i in range (N):
         loss -= np.log(softmax[i,y[i]])
     loss /= N
-    loss+= 0.5*reg*np.sum(W*W)
+    loss+= 0.5*reg*np.sum(W**2)
     
     ## gradient of W
     
@@ -53,12 +55,10 @@ def softmax_loss_naive(W, X, y, reg):
     for i in range (N):
         for j in range (D):
             for k in range (C):
-                dW [j,k] = X[i,j]*softmax[i,k]
-                if k == y[i]:
-                    dW[j,k] -=1
+                dW [j,k] += X[i,j]*softmax[i,k]
+                
     dW /= N
     dW += reg*W
-        
     
     #############################################################################
     #                          END OF YOUR CODE                                 #
@@ -88,10 +88,10 @@ def softmax_loss_vectorized(W, X, y, reg):
     scores = scores - np.max(scores,axis=1,keepdims =True)
     softmax = np.exp(scores)
     
-    softmax -= np.sum(softmax, axis = 1, keepdims = True)
+    softmax /= np.sum(softmax, axis = 1, keepdims = True)
     loss -= np.sum(np.log(softmax[np.arange(N),y]))
     loss /= N
-    loss += 0.5 * reg *np.sum(W*W)
+    loss += 0.5 * reg *np.sum(W**2)
     
     softmax[np.arange(N),y] -= 1
     dW = np.dot(X.T,softmax)
