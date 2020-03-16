@@ -56,7 +56,7 @@ class LinearClassifier(object):
             index = np.random.choice(num_train,batch_size)
             
             X_batch = X[index]
-            Y_batch = y[index]
+            y_batch = y[index]
             #########################################################################
             #                       END OF YOUR CODE                                #
             #########################################################################
@@ -73,15 +73,15 @@ class LinearClassifier(object):
             # TODO:                                                                 #
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
-            self.W -= learning_rate * reg
+            self.W -= learning_rate * grad
             #########################################################################
             #                       END OF YOUR CODE                                #
             #########################################################################
 
-            if verbose and it % 100 == 0:
+            if verbose and it % 100 ==0 :
                 print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
-            return loss_history
+        return loss_history
 
     def predict(self, X):
         """
@@ -97,7 +97,7 @@ class LinearClassifier(object):
           array of length N, and each element is an integer giving the predicted
           class.
         """
-        y_pred = np.zeros(X.shape[0])
+        y_pred = np.zeros(X.shape[1])
         ###########################################################################
         # TODO:                                                                   #
         # Implement this method. Store the predicted labels in y_pred.            #
